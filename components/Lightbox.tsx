@@ -94,11 +94,11 @@ export default function Lightbox({
             }}
             aria-label="Kapat"
           >
-            <svg width="18" height="18" viewBox="0 0 18 18" fill="none">
+            <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
               <path
-                d="M1 1L17 17M17 1L1 17"
+                d="M1 1L13 13M13 1L1 13"
                 stroke="currentColor"
-                strokeWidth="2"
+                strokeWidth="1.5"
                 strokeLinecap="round"
               />
             </svg>
@@ -120,11 +120,11 @@ export default function Lightbox({
                 }}
                 aria-label="Önceki"
               >
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                   <path
-                    d="M13 4L7 10L13 16"
+                    d="M10 3L5 8L10 13"
                     stroke="currentColor"
-                    strokeWidth="2"
+                    strokeWidth="1.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   />
@@ -138,11 +138,11 @@ export default function Lightbox({
                 }}
                 aria-label="Sonraki"
               >
-                <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
                   <path
-                    d="M7 4L13 10L7 16"
+                    d="M6 3L11 8L6 13"
                     stroke="currentColor"
-                    strokeWidth="2"
+                    strokeWidth="1.5"
                     strokeLinecap="round"
                     strokeLinejoin="round"
                   />
@@ -154,53 +154,44 @@ export default function Lightbox({
           {/* Image */}
           <AnimatePresence mode="wait">
             <motion.div
-              key={currentArtwork._id}
+              key={currentArtwork._key}
               className="lightbox-image-container"
-              initial={{ opacity: 0, scale: 0.9, y: 20 }}
-              animate={{ opacity: 1, scale: 1, y: 0 }}
-              exit={{ opacity: 0, scale: 0.9, y: -20 }}
+              initial={{ opacity: 0, scale: 0.96 }}
+              animate={{ opacity: 1, scale: 1 }}
+              exit={{ opacity: 0, scale: 0.96 }}
               transition={{
-                type: 'spring',
-                stiffness: 300,
-                damping: 30,
+                duration: 0.3,
+                ease: [0.25, 0.4, 0.25, 1],
               }}
               onClick={(e) => e.stopPropagation()}
             >
               {/* eslint-disable-next-line @next/next/no-img-element */}
               <img
                 src={imageUrl}
-                alt={currentArtwork.title}
+                alt={currentArtwork.category?.title || 'Resim'}
                 draggable={false}
               />
 
               {/* Info overlay */}
               <div className="lightbox-info">
-                <motion.h3
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.2 }}
-                  className="text-xl font-semibold text-white mb-1"
-                >
-                  {currentArtwork.title}
-                </motion.h3>
                 <motion.p
-                  initial={{ opacity: 0, y: 10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ delay: 0.3 }}
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  transition={{ delay: 0.2 }}
                   className="text-sm"
-                  style={{ fontFamily: 'var(--font-handwriting)', fontSize: '18px', color: 'var(--accent-light)' }}
+                  style={{ color: 'var(--muted)' }}
                 >
                   {currentArtwork.category?.title}
                 </motion.p>
-                {currentArtwork.description && (
+                {currentArtwork.aciklama && (
                   <motion.p
-                    initial={{ opacity: 0, y: 10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    transition={{ delay: 0.4 }}
-                    className="text-sm mt-2"
-                    style={{ color: 'rgba(255,255,255,0.6)' }}
+                    initial={{ opacity: 0 }}
+                    animate={{ opacity: 1 }}
+                    transition={{ delay: 0.3 }}
+                    className="text-sm mt-1"
+                    style={{ color: 'var(--muted)' }}
                   >
-                    {currentArtwork.description}
+                    {currentArtwork.aciklama}
                   </motion.p>
                 )}
               </div>

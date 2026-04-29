@@ -1,22 +1,44 @@
-import { SanityImageSource } from '@sanity/image-url/lib/types/types'
+export interface Resim {
+  _key: string
+  _type: 'image'
+  asset: {
+    _ref: string
+    _type: string
+  }
+  aciklama?: string
+}
 
 export interface Category {
   _id: string
   title: string
   slug: string
-  artworkCount?: number
+  resimler: Resim[]
+  resimCount?: number
+  altKoleksiyonlar?: Category[]
+  coverImage?: {
+    _ref: string
+    _type: string
+  }
+  isSubCollection?: boolean
+  parentCollection?: {
+    title: string
+    slug: string
+  }
 }
 
+// Flat representation used by grid/lightbox components
 export interface Artwork {
-  _id: string
-  title: string
-  slug: string
-  image: SanityImageSource & {
+  _key: string
+  image: {
+    _type: 'image'
     asset: {
       _ref: string
       _type: string
     }
   }
-  description?: string
-  category: Category
+  aciklama?: string
+  category: {
+    title: string
+    slug: string
+  }
 }

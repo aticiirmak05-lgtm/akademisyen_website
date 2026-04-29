@@ -8,6 +8,7 @@ import {
 } from '@/sanity/lib/queries'
 import type { Category, Artwork } from '@/types'
 import ArtworkGrid from '@/components/ArtworkGrid'
+import { urlFor } from '@/sanity/lib/image'
 import { FadeIn } from '@/components/animations'
 
 export const revalidate = 0
@@ -28,12 +29,12 @@ export async function generateMetadata({
   const category = await getCategoryBySlug(slug)
 
   if (!category) {
-    return { title: 'Kategori Bulunamadı' }
+    return { title: 'Koleksiyon Bulunamadı' }
   }
 
   return {
     title: `${category.title} — Bahadır Uçan`,
-    description: `Bahadır Uçan'ın ${category.title} kategorisindeki eserleri.`,
+    description: `Bahadır Uçan'ın ${category.title} koleksiyonundaki eserleri.`,
   }
 }
 
@@ -61,60 +62,92 @@ export default async function CategoryPage({
   return (
     <div className="min-h-screen">
       {/* Header */}
-      <section className="hero-gradient pt-32 pb-12 px-6">
-        <div className="max-w-7xl mx-auto">
+      <section className="pt-40 pb-16 px-6">
+        <div className="max-w-6xl mx-auto">
+
+          {/* Breadcrumb */}
           <FadeIn delay={0.1}>
-            <Link
-              href="/"
-              className="inline-flex items-center gap-2 text-sm font-medium mb-6 transition-colors hover:text-accent-light"
-              style={{ color: 'var(--muted)' }}
-            >
-              <svg
-                width="16"
-                height="16"
-                viewBox="0 0 16 16"
-                fill="none"
+            <nav className="flex items-center gap-2 text-sm mb-10" style={{ color: 'var(--muted)' }}>
+              <Link
+                href="/"
+                className="transition-colors hover:text-foreground"
               >
-                <path
-                  d="M10 12L6 8L10 4"
-                  stroke="currentColor"
-                  strokeWidth="1.5"
-                  strokeLinecap="round"
-                  strokeLinejoin="round"
-                />
-              </svg>
-              Tüm Eserler
-            </Link>
+                Eserler
+              </Link>
+              {category.isSubCollection && category.parentCollection && (
+                <>
+                  <span>/</span>
+                  <Link
+                    href={`/category/${category.parentCollection.slug}`}
+                    className="transition-colors hover:text-foreground"
+                  >
+                    {category.parentCollection.title}
+                  </Link>
+                </>
+              )}
+              <span>/</span>
+              <span style={{ color: 'var(--foreground)' }}>
+                {category.title}
+              </span>
+            </nav>
           </FadeIn>
 
           <FadeIn delay={0.2}>
-            <p
-              className="hero-subtitle text-xl mb-3"
-              style={{ fontFamily: 'var(--font-handwriting)' }}
-            >
-              Kategori
-            </p>
-          </FadeIn>
-
-          <FadeIn delay={0.3}>
-            <h2 className="hero-title text-4xl md:text-6xl lg:text-7xl mb-4">
+            <h2 className="text-4xl md:text-5xl lg:text-6xl font-light tracking-tight mb-4" style={{ lineHeight: 1.1 }}>
               {category.title}
             </h2>
           </FadeIn>
 
-          <FadeIn delay={0.4}>
+          <FadeIn delay={0.3}>
             <p
-              className="text-base"
+              className="text-sm"
               style={{ color: 'var(--muted)' }}
             >
-              {artworks.length} eser
+              {artworks?.length ?? 0} eser
             </p>
           </FadeIn>
+
+          {/* Sub-collections */}
+          {category.altKoleksiyonlar && category.altKoleksiyonlar.length > 0 && (
+            <FadeIn delay={0.4}>
+              <div className="mt-12">
+                <p className="text-xs font-medium uppercase tracking-widest mb-5" style={{ color: 'var(--muted)' }}>
+                  Alt Koleksiyonlar
+                </p>
+                <div className="sub-collection-grid">
+                  {category.altKoleksiyonlar.map((sub: Category) => (
+                    <Link
+                      key={sub._id}
+                      href={`/category/${sub.slug}`}
+                      className="sub-collection-card"
+                    >
+                      {sub.coverImage && (
+                        // eslint-disable-next-line @next/next/no-img-element
+                        <img
+                          src={urlFor({ _type: 'image', asset: sub.coverImage }).width(500).quality(60).url()}
+                          alt=""
+                          className="sub-cover"
+                        />
+                      )}
+                      <div className="sub-overlay" />
+                      <span className="sub-badge">Koleksiyon</span>
+                      <div className="sub-content">
+                        <h3 className="sub-title">{sub.title}</h3>
+                        <span className="sub-count">
+                          {sub.resimCount ?? 0} eser
+                        </span>
+                      </div>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            </FadeIn>
+          )}
 
           {/* Other categories */}
           {allCategories.length > 1 && (
             <FadeIn delay={0.5}>
-              <div className="flex flex-wrap gap-3 mt-8">
+              <div className="flex flex-wrap gap-3 mt-12">
                 <Link href="/" className="category-chip">
                   Tümü
                 </Link>
@@ -136,9 +169,9 @@ export default async function CategoryPage({
       </section>
 
       {/* Artworks Grid */}
-      <section className="px-6 py-12">
-        <div className="max-w-7xl mx-auto">
-          <ArtworkGrid artworks={artworks} />
+      <section className="px-6 pb-24">
+        <div className="max-w-6xl mx-auto">
+          <ArtworkGrid artworks={artworks ?? []} />
         </div>
       </section>
     </div>

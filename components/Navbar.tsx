@@ -22,39 +22,20 @@ export default function Navbar() {
         scrolled ? 'nav-glass' : ''
       }`}
     >
-      <div className="max-w-7xl mx-auto px-6 py-4 flex items-center justify-between">
+      <div className="max-w-6xl mx-auto px-6 py-5 flex items-center justify-between">
         {/* Logo */}
-        <Link href="/" className="flex items-center gap-3 group">
-          <motion.div
-            whileHover={{ rotate: 10, scale: 1.1 }}
-            transition={{ type: 'spring', stiffness: 400, damping: 15 }}
-            className="w-10 h-10 rounded-lg flex items-center justify-center"
-            style={{ background: 'var(--accent)', fontSize: '20px' }}
-          >
-            ✏️
-          </motion.div>
-          <div>
-            <h1 className="text-lg font-bold leading-tight tracking-tight">
-              Bahadır Uçan
-            </h1>
-            <p
-              className="text-xs leading-none"
-              style={{
-                fontFamily: 'var(--font-handwriting)',
-                color: 'var(--accent-light)',
-                fontSize: '14px',
-              }}
-            >
-              Karikatürist &amp; Akademisyen
-            </p>
-          </div>
+        <Link href="/" className="group">
+          <h1 className="text-base font-medium tracking-tight">
+            Bahadır Uçan
+          </h1>
         </Link>
 
         {/* Nav Links */}
-        <div className="flex items-center gap-6">
+        <div className="flex items-center gap-8">
           <Link
             href="/"
-            className="text-sm font-medium transition-colors hover:text-accent-light"
+            className="text-sm transition-colors"
+            style={{ color: 'var(--muted)' }}
           >
             Eserler
           </Link>

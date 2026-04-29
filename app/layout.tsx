@@ -1,17 +1,11 @@
 import type { Metadata } from "next";
-import { Space_Grotesk, Caveat } from "next/font/google";
+import { Space_Grotesk } from "next/font/google";
 import "./globals.css";
 
 const spaceGrotesk = Space_Grotesk({
   variable: "--font-heading",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
-});
-
-const caveat = Caveat({
-  variable: "--font-handwriting",
-  subsets: ["latin"],
-  weight: ["400", "500", "600", "700"],
 });
 
 export const metadata: Metadata = {
@@ -28,7 +22,7 @@ export default function RootLayout({
   return (
     <html
       lang="tr"
-      className={`${spaceGrotesk.variable} ${caveat.variable} h-full antialiased`}
+      className={`${spaceGrotesk.variable} h-full antialiased`}
     >
       <body className="min-h-full flex flex-col relative">{children}</body>
     </html>
