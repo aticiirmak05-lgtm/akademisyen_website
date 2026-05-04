@@ -2,78 +2,104 @@
 
 import { useState } from 'react'
 import Image from 'next/image'
+import { motion } from 'framer-motion'
 import { urlFor } from '@/sanity/lib/image'
 import type { Artwork } from '@/types'
-import { StaggerChildren, StaggerItem, SpringCard } from './animations'
 import Lightbox from './Lightbox'
 
 interface ArtworkGridProps {
   artworks: Artwork[]
 }
 
+function ArtworkCard({
+  artwork,
+  index,
+  onOpen,
+}: {
+  artwork: Artwork
+  index: number
+  onOpen: () => void
+}) {
+  const imageUrl = urlFor(artwork.image).width(700).quality(82).url()
+
+  return (
+    <motion.div
+      className="masonry-item"
+      initial={{ opacity: 0, y: 32 }}
+      whileInView={{ opacity: 1, y: 0 }}
+      viewport={{ once: true, margin: '-60px' }}
+      transition={{
+        duration: 0.7,
+        delay: (index % 3) * 0.08,
+        ease: [0.22, 1, 0.36, 1],
+      }}
+    >
+      <div
+        className="artwork-card group"
+        role="button"
+        tabIndex={0}
+        id={`artwork-${artwork._key}`}
+        onClick={onOpen}
+        onKeyDown={(e) => {
+          if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); onOpen() }
+        }}
+        aria-label={`Eseri görüntüle — ${artwork.category?.title || 'Resim'}`}
+      >
+        <Image
+          src={imageUrl}
+          alt={artwork.category?.title || 'Eser'}
+          width={700}
+          height={900}
+          className="w-full h-auto block"
+          sizes="(max-width: 580px) 100vw, (max-width: 1024px) 50vw, 33vw"
+          loading={index < 4 ? 'eager' : 'lazy'}
+        />
+        {/* Sleek Dark Theme Overlay - No Gradients */}
+        <div className="absolute inset-0 bg-background/80 opacity-0 group-hover:opacity-100 transition-opacity duration-300 flex flex-col justify-end p-6">
+          <p className="text-accent-primary font-medium text-lg tracking-wide">{artwork.category?.title}</p>
+          {artwork.aciklama && (
+            <p className="text-foreground text-sm mt-1">{artwork.aciklama}</p>
+          )}
+        </div>
+      </div>
+    </motion.div>
+  )
+}
+
 export default function ArtworkGrid({ artworks }: ArtworkGridProps) {
-  const [lightboxOpen, setLightboxOpen] = useState(false)
+  const [lightboxOpen,  setLightboxOpen]  = useState(false)
   const [lightboxIndex, setLightboxIndex] = useState(0)
 
-  const openLightbox = (index: number) => {
-    setLightboxIndex(index)
-    setLightboxOpen(true)
-  }
-
-  if (artworks.length === 0) {
+  if (!artworks || artworks.length === 0) {
     return (
-      <div className="flex flex-col items-center justify-center py-32 text-center">
-        <p className="text-sm" style={{ color: 'var(--muted)' }}>
-          Henüz eser eklenmemiş.
-        </p>
+      <div className="py-24 text-center border border-border rounded-lg text-muted">
+        Henüz bu koleksiyona eser eklenmemiş.
       </div>
     )
   }
 
   return (
     <>
-      <StaggerChildren staggerDelay={0.06} className="masonry-grid">
-        {artworks.map((artwork, index) => (
-          <StaggerItem key={artwork._key} className="masonry-item">
-            <SpringCard>
-              <div
-                className="artwork-card border border-orange-500"
-                onClick={() => openLightbox(index)}
-                role="button"
-                tabIndex={0}
-                aria-label="Resmi görüntüle"
-                onKeyDown={(e) => {
-                  if (e.key === 'Enter' || e.key === ' ') {
-                    e.preventDefault()
-                    openLightbox(index)
-                  }
-                }}
-              >
-                <Image
-                  src={urlFor(artwork.image).width(600).quality(80).url()}
-                  alt={artwork.category?.title || 'Resim'}
-                  width={600}
-                  height={800}
-                  className="w-full h-auto block"
-                  sizes="(max-width: 640px) 100vw, (max-width: 1024px) 50vw, 33vw"
-                  style={{ display: 'block' }}
-                />
-                <div className="artwork-overlay">
-                  <p className="text-sm text-white font-light">
-                    {artwork.category?.title}
-                  </p>
-                </div>
-              </div>
-            </SpringCard>
-          </StaggerItem>
+      <div className="masonry-grid">
+        {artworks.map((artwork, i) => (
+          <ArtworkCard
+            key={artwork._key}
+            artwork={artwork}
+            index={i}
+            onOpen={() => {
+              setLightboxIndex(i)
+              setLightboxOpen(true)
+            }}
+          />
         ))}
-      </StaggerChildren>
+      </div>
 
       <Lightbox
         artworks={artworks}
-        initialIndex={lightboxIndex}
         isOpen={lightboxOpen}
+        initialIndex={lightboxIndex}
         onClose={() => setLightboxOpen(false)}
+        onNavigate={setLightboxIndex}
       />
     </>
   )

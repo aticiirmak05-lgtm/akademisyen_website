@@ -9,15 +9,12 @@ import {
 import type { Category, Artwork } from '@/types'
 import ArtworkGrid from '@/components/ArtworkGrid'
 import { urlFor } from '@/sanity/lib/image'
-import { FadeIn } from '@/components/animations'
 
 export const revalidate = 0
 
 export async function generateStaticParams() {
   const slugs = await getAllCategorySlugs()
-  return slugs.map((item: { slug: string }) => ({
-    slug: item.slug,
-  }))
+  return slugs.map((item: { slug: string }) => ({ slug: item.slug }))
 }
 
 export async function generateMetadata({
@@ -27,11 +24,7 @@ export async function generateMetadata({
 }) {
   const { slug } = await params
   const category = await getCategoryBySlug(slug)
-
-  if (!category) {
-    return { title: 'Koleksiyon Bulunamadı' }
-  }
-
+  if (!category) return { title: 'Koleksiyon Bulunamadı' }
   return {
     title: `${category.title} — Bahadır Uçan`,
     description: `Bahadır Uçan'ın ${category.title} koleksiyonundaki eserleri.`,
@@ -55,125 +48,119 @@ export default async function CategoryPage({
     getCategories(),
   ])
 
-  if (!category) {
-    notFound()
-  }
+  if (!category) notFound()
+
+  const artworkCount = artworks?.length ?? 0
 
   return (
-    <div className="min-h-screen">
-      {/* Header */}
-      <section className="pt-40 pb-16 px-6">
-        <div className="max-w-6xl mx-auto">
+    <div className="min-h-screen bg-background">
+
+      {/* ── HEADER ── */}
+      <section className="pt-80 pb-48 px-6 md:px-12 lg:px-24 relative overflow-hidden">
+        
+        <div className="max-w-6xl mx-auto flex flex-col items-center text-center relative z-10">
 
           {/* Breadcrumb */}
-          <FadeIn delay={0.1}>
-            <nav className="flex items-center gap-2 text-sm mb-10" style={{ color: 'var(--muted)' }}>
-              <Link
-                href="/"
-                className="transition-colors hover:text-foreground"
-              >
-                Eserler
-              </Link>
-              {category.isSubCollection && category.parentCollection && (
-                <>
-                  <span>/</span>
-                  <Link
-                    href={`/category/${category.parentCollection.slug}`}
-                    className="transition-colors hover:text-foreground"
-                  >
-                    {category.parentCollection.title}
-                  </Link>
-                </>
-              )}
-              <span>/</span>
-              <span style={{ color: 'var(--foreground)' }}>
-                {category.title}
-              </span>
-            </nav>
-          </FadeIn>
+          <nav
+            className="flex items-center justify-center gap-3 mb-8 text-xs font-medium uppercase tracking-widest text-muted"
+            aria-label="Breadcrumb"
+          >
+            <Link href="/" className="hover:text-accent-primary transition-colors">
+              Eserler
+            </Link>
+            {category.isSubCollection && category.parentCollection && (
+              <>
+                <span className="text-border-hover">/</span>
+                <Link
+                  href={`/category/${category.parentCollection.slug}`}
+                  className="hover:text-accent-primary transition-colors"
+                >
+                  {category.parentCollection.title}
+                </Link>
+              </>
+            )}
+            <span className="text-border-hover">/</span>
+            <span className="text-accent-primary">{category.title}</span>
+          </nav>
 
-          <FadeIn delay={0.2}>
-            <h2 className="text-4xl md:text-5xl lg:text-6xl font-light tracking-tight mb-4" style={{ lineHeight: 1.1 }}>
+          {/* Title */}
+          <div>
+            <h1 className="hero-title" style={{ fontSize: 'clamp(2.5rem, 6vw, 4.5rem)' }}>
               {category.title}
-            </h2>
-          </FadeIn>
-
-          <FadeIn delay={0.3}>
-            <p
-              className="text-sm"
-              style={{ color: 'var(--muted)' }}
-            >
-              {artworks?.length ?? 0} eser
+            </h1>
+            <p className="mt-12 text-sm text-muted uppercase tracking-widest flex items-center justify-center gap-3">
+              <span className="w-8 h-[1px] bg-border-hover"></span>
+              {artworkCount} {artworkCount === 1 ? 'Eser' : 'Eser'}
+              <span className="w-8 h-[1px] bg-border-hover"></span>
             </p>
-          </FadeIn>
+          </div>
 
           {/* Sub-collections */}
           {category.altKoleksiyonlar && category.altKoleksiyonlar.length > 0 && (
-            <FadeIn delay={0.4}>
-              <div className="mt-12">
-                <p className="text-xs font-medium uppercase tracking-widest mb-5" style={{ color: 'var(--muted)' }}>
-                  Alt Koleksiyonlar
-                </p>
-                <div className="sub-collection-grid">
-                  {category.altKoleksiyonlar.map((sub: Category) => (
-                    <Link
-                      key={sub._id}
-                      href={`/category/${sub.slug}`}
-                      className="sub-collection-card"
-                    >
+            <div
+              className="mt-32 w-full flex flex-col items-center"
+            >
+              <h2 className="text-xl font-medium mb-12 text-foreground">Alt Koleksiyonlar</h2>
+              <div className="gallery-grid w-full text-left">
+                {category.altKoleksiyonlar.map((sub: Category) => (
+                  <Link
+                    key={sub._id}
+                    href={`/category/${sub.slug}`}
+                    className="gallery-card group"
+                    id={`sub-cat-${sub.slug}`}
+                  >
+                    <div className="gallery-image-wrapper">
                       {sub.coverImage && (
                         // eslint-disable-next-line @next/next/no-img-element
                         <img
-                          src={urlFor({ _type: 'image', asset: sub.coverImage }).width(500).quality(60).url()}
+                          src={urlFor({ _type: 'image', asset: sub.coverImage }).width(600).quality(85).url()}
                           alt=""
-                          className="sub-cover"
+                          className="gallery-image"
+                          loading="lazy"
                         />
                       )}
-                      <div className="sub-overlay" />
-                      <span className="sub-badge">Koleksiyon</span>
-                      <div className="sub-content">
-                        <h3 className="sub-title">{sub.title}</h3>
-                        <span className="sub-count">
-                          {sub.resimCount ?? 0} eser
-                        </span>
-                      </div>
-                    </Link>
-                  ))}
-                </div>
-              </div>
-            </FadeIn>
-          )}
-
-          {/* Other categories */}
-          {allCategories.length > 1 && (
-            <FadeIn delay={0.5}>
-              <div className="flex flex-wrap gap-3 mt-12">
-                <Link href="/" className="category-chip">
-                  Tümü
-                </Link>
-                {allCategories.map((cat: Category) => (
-                  <Link
-                    key={cat._id}
-                    href={`/category/${cat.slug}`}
-                    className={`category-chip ${
-                      cat.slug === slug ? 'active' : ''
-                    }`}
-                  >
-                    {cat.title}
+                      <div className="absolute inset-0 bg-background/50 opacity-0 group-hover:opacity-100 transition-opacity"></div>
+                    </div>
+                    <div className="gallery-content">
+                      <h3 className="gallery-title">{sub.title}</h3>
+                      <p className="gallery-meta">{sub.resimCount ?? 0} Eser</p>
+                    </div>
                   </Link>
                 ))}
               </div>
-            </FadeIn>
+            </div>
+          )}
+
+          {/* Category filter chips */}
+          {allCategories.length > 1 && (
+            <div
+              className="flex flex-wrap justify-center gap-3 mt-24"
+            >
+              <Link href="/" className="btn-secondary text-xs" style={{ padding: '10px 20px', borderRadius: '0px' }}>
+                Tümü
+              </Link>
+              {allCategories.map((cat: Category) => (
+                <Link
+                  key={cat._id}
+                  href={`/category/${cat.slug}`}
+                  className={`btn-secondary text-xs ${cat.slug === slug ? 'border-accent-primary text-white bg-accent-primary' : ''}`}
+                  style={{ padding: '10px 20px', borderRadius: '0px' }}
+                >
+                  {cat.title}
+                </Link>
+              ))}
+            </div>
           )}
         </div>
       </section>
 
-      {/* Artworks Grid */}
-      <section className="px-6 pb-24">
-        <div className="max-w-6xl mx-auto">
+      {/* ── MASONRY GRID ── */}
+      <section className="px-6 md:px-12 lg:px-24 py-16 pb-32" aria-label="Eser galerisi">
+        <div className="max-w-7xl mx-auto">
           <ArtworkGrid artworks={artworks ?? []} />
         </div>
       </section>
+
     </div>
   )
 }
