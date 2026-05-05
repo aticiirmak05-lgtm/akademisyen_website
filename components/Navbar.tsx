@@ -33,11 +33,18 @@ export default function Navbar() {
         {/* Nav Links */}
         <div className="flex items-center gap-8">
           <Link
-            href="/"
-            className="text-sm transition-colors"
+            href="/collections"
+            className="text-sm font-medium transition-colors hover:text-white"
             style={{ color: 'var(--muted)' }}
           >
-            Eserler
+            Koleksiyonlar
+          </Link>
+          <Link
+            href="/about"
+            className="text-sm font-medium transition-colors hover:text-white"
+            style={{ color: 'var(--muted)' }}
+          >
+            Hakkında
           </Link>
         </div>
       </div>

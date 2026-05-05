@@ -22,6 +22,13 @@ export const category = defineType({
       validation: (Rule) => Rule.required(),
     }),
     defineField({
+      name: 'description',
+      title: 'Koleksiyon Açıklaması',
+      type: 'text',
+      rows: 3,
+      description: 'Bu koleksiyon/alt koleksiyon için genel bir açıklama yazabilirsiniz (opsiyonel).',
+    }),
+    defineField({
       name: 'resimler',
       title: 'Resimler',
       type: 'array',

@@ -11,6 +11,7 @@ export interface Resim {
 export interface Category {
   _id: string
   title: string
+  description?: string
   slug: string
   resimler: Resim[]
   resimCount?: number
@@ -40,5 +41,6 @@ export interface Artwork {
   category: {
     title: string
     slug: string
+    isSubCollection?: boolean
   }
 }

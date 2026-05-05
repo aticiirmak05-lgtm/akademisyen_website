@@ -8,8 +8,10 @@ import {
 } from '@/sanity/lib/queries'
 import type { Category, Artwork } from '@/types'
 import ArtworkGrid from '@/components/ArtworkGrid'
+import InstagramCarousel from '@/components/InstagramCarousel'
 import { urlFor } from '@/sanity/lib/image'
 import { FadeIn } from '@/components/animations'
+import { ArrowLeft } from 'lucide-react'
 
 export const revalidate = 0
 
@@ -67,29 +69,14 @@ export default async function CategoryPage({
 
           {/* Breadcrumb */}
           <FadeIn delay={0.1}>
-            <nav className="flex items-center gap-2 text-sm mb-10" style={{ color: 'var(--muted)' }}>
-              <Link
-                href="/"
-                className="transition-colors hover:text-foreground"
-              >
-                Eserler
-              </Link>
-              {category.isSubCollection && category.parentCollection && (
-                <>
-                  <span>/</span>
-                  <Link
-                    href={`/category/${category.parentCollection.slug}`}
-                    className="transition-colors hover:text-foreground"
-                  >
-                    {category.parentCollection.title}
-                  </Link>
-                </>
-              )}
-              <span>/</span>
-              <span style={{ color: 'var(--foreground)' }}>
-                {category.title}
-              </span>
-            </nav>
+            <Link
+              href="/collections"
+              className="inline-flex items-center gap-2 text-sm font-medium mb-10 transition-colors group"
+              style={{ color: 'var(--muted)' }}
+            >
+              <ArrowLeft size={16} className="group-hover:-translate-x-1 transition-transform" />
+              <span className="group-hover:text-[var(--foreground)] transition-colors">Geri Dön</span>
+            </Link>
           </FadeIn>
 
           <FadeIn delay={0.2}>
@@ -97,6 +84,14 @@ export default async function CategoryPage({
               {category.title}
             </h2>
           </FadeIn>
+
+          {category.description && (
+            <FadeIn delay={0.25}>
+              <p className="max-w-2xl text-lg leading-relaxed mb-6 text-[var(--muted)]">
+                {category.description}
+              </p>
+            </FadeIn>
+          )}
 
           <FadeIn delay={0.3}>
             <p
@@ -130,12 +125,8 @@ export default async function CategoryPage({
                         />
                       )}
                       <div className="sub-overlay" />
-                      <span className="sub-badge">Koleksiyon</span>
                       <div className="sub-content">
                         <h3 className="sub-title">{sub.title}</h3>
-                        <span className="sub-count">
-                          {sub.resimCount ?? 0} eser
-                        </span>
                       </div>
                     </Link>
                   ))}
@@ -144,34 +135,18 @@ export default async function CategoryPage({
             </FadeIn>
           )}
 
-          {/* Other categories */}
-          {allCategories.length > 1 && (
-            <FadeIn delay={0.5}>
-              <div className="flex flex-wrap gap-3 mt-12">
-                <Link href="/" className="category-chip">
-                  Tümü
-                </Link>
-                {allCategories.map((cat: Category) => (
-                  <Link
-                    key={cat._id}
-                    href={`/category/${cat.slug}`}
-                    className={`category-chip ${
-                      cat.slug === slug ? 'active' : ''
-                    }`}
-                  >
-                    {cat.title}
-                  </Link>
-                ))}
-              </div>
-            </FadeIn>
-          )}
+
         </div>
       </section>
 
-      {/* Artworks Grid */}
+      {/* Artworks Grid or Carousel */}
       <section className="px-6 pb-24">
         <div className="max-w-6xl mx-auto">
-          <ArtworkGrid artworks={artworks ?? []} />
+          {category.isSubCollection ? (
+            <InstagramCarousel artworks={artworks ?? []} />
+          ) : (
+            <ArtworkGrid artworks={artworks ?? []} />
+          )}
         </div>
       </section>
     </div>

@@ -1,17 +1,20 @@
 import { client } from './client'
 
-// Sadece üst seviye koleksiyonları getir (başka bir koleksiyonun alt koleksiyonu olmayanlar)
+// Tüm koleksiyonları getir (filtreler vs. için)
 export async function getCategories() {
   return client.fetch(
-    `*[_type == "category" && !(_id in *[_type == "category"].altKoleksiyonlar[]._ref)] | order(title asc) {
+    `*[_type == "category"] | order(title asc) {
       _id,
       title,
+      description,
       "slug": slug.current,
-      "resimCount": count(resimler),
-      "coverImage": resimler[0].asset,
+      "isSubCollection": _id in *[_type == "category"].altKoleksiyonlar[]._ref,
+      "resimCount": count(resimler) + count(altKoleksiyonlar[]->resimler[]),
+      "coverImage": coalesce(resimler[0].asset, altKoleksiyonlar[0]->resimler[0].asset),
       "altKoleksiyonlar": altKoleksiyonlar[]->{
         _id,
         title,
+        description,
         "slug": slug.current,
         "resimCount": count(resimler)
       }
@@ -25,6 +28,7 @@ export async function getCategoryBySlug(slug: string) {
     `*[_type == "category" && slug.current == $slug][0] {
       _id,
       title,
+      description,
       "slug": slug.current,
       resimler,
       "isSubCollection": _id in *[_type == "category"].altKoleksiyonlar[]._ref,
@@ -35,6 +39,7 @@ export async function getCategoryBySlug(slug: string) {
       "altKoleksiyonlar": altKoleksiyonlar[]->{
         _id,
         title,
+        description,
         "slug": slug.current,
         "resimCount": count(resimler),
         "coverImage": resimler[0].asset
@@ -57,7 +62,11 @@ export async function getArtworks() {
         aciklama,
         "category": {
           "title": ^.title,
-          "slug": ^.slug.current
+          "slug": ^.slug.current,
+          "isSubCollection": ^._id in *[_type == "category"].altKoleksiyonlar[]._ref,
+          "parentCollection": *[_type == "category" && ^._id in altKoleksiyonlar[]._ref][0] {
+            "slug": slug.current
+          }
         }
       }
     }.items[]`
